@@ -1,0 +1,21 @@
+Files read: `bikeshare_bad/src/main/java/bikeshare/Main.java`.
+
+| No. | Check | Code location (file:line) | Finding | Severity | Suggested fix |
+|---:|---|---|---|---|---|
+| 1 | Code quality | `Main.java:17-18` | The two public mutable maps allow any caller to add, remove, or corrupt bikes and rentals, bypassing all validation. | Must fix | Make the maps private and provide operations that preserve their invariants. |
+| 2 | Code quality | `Main.java:68, 75, 84, 100, 113` | A rental is represented by a `String[]` with undocumented positions; an incorrect index or malformed array can produce wrong data or an exception. | Should fix | Replace the array with a small `Rental` class or record with named fields. |
+| 3 | Code quality | `Main.java:84` | The fee calculation can overflow for a sufficiently large positive minute value, producing an incorrect or negative fee. | Should fix | Use `Math.multiplyExact` or restrict minutes to a reasonable maximum. |
+| 4 | Code quality | `Main.java:113-114` | CSV values are joined without escaping; a member ID containing a comma or quote will create a malformed `rides.csv` row. | Should fix | Escape and quote CSV fields before writing them. |
+| 5 | Check 2: cohesion | `Main.java:13-145` | `Main` has weak class cohesion because it represents the menu, command parser, bike inventory, rental records, fee rules, reporting, validation, and file persistence. | Must fix | Move each responsibility into a focused class, leaving `Main` only to construct and start the program. |
+| 6 | Check 2: cohesion | `Main.java:20-37` | `main` has **procedural cohesion**: initialization, menu display, input processing, command control, and error reporting are grouped because they occur in sequence. | Should fix | Extract the command-line interaction into a menu class and keep `main` as composition code. |
+| 7 | Check 2: cohesion | `Main.java:39-54` | `run` has **logical cohesion**: it groups unrelated rent, return, listing, staff-report, and quit operations selected by a command value. | Should fix | Keep parsing in a menu component and delegate each operation to a focused service method. |
+| 8 | Check 2: cohesion | `Main.java:72-94` | `returnBike` has **procedural cohesion** because it combines parsing, validation, fee calculation, persistence, inventory updates, and receipt output. | Should fix | Let a rental service complete the ride and return receipt data for the menu to print. |
+| 9 | Check 2: cohesion and control coupling | `Main.java:45-46, 96-101` | `printBikes(boolean)` exhibits **logical cohesion** and control coupling: the boolean tells the method whether to perform an additional, different reporting operation. | Should fix | Replace it with separate available-bike and rental-report operations. |
+| 10 | Check 2: encapsulation/common coupling | `Main.java:14-18` | All program state and configuration are public static fields, creating common coupling through globally accessible data. | Must fix | Make the fields private instance state owned by the appropriate focused classes. |
+| 11 | Check 2: connascence | `Main.java:14-15, 24, 60-61, 84` | Member types have **connascence of convention**: several locations must agree that integer `1` means student and `2` means staff. | Should fix | Represent member types with an enum that owns its fee rate. |
+| 12 | Check 2: connascence | `Main.java:68, 75, 84, 100, 113` | Rental handling has **connascence of position** because several methods must agree that array indexes 0, 1, and 2 mean member ID, member type, and origin. | Must fix | Replace `String[]` with a `Rental` class or record. |
+| 13 | Check 2: coupling | `Main.java:104-116` | Business logic is directly coupled to the filesystem and CSV algorithm, so changing persistence requires changing `Main`. | Should fix | Hide saving behind an interface and place CSV writing in its own implementation. |
+| 14 | Check 2: coupling | `Main.java:104-114` | `saveRide` receives the rental as an untyped aggregate, creating stamp coupling and requiring knowledge of its positional structure. | Should fix | Pass a cohesive `Ride` value object to the persistence operation. |
+
+Check 1 findings: **4**.  
+Check 2 findings: **10**.

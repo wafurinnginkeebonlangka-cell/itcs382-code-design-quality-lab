@@ -1,0 +1,16 @@
+Files read: `BikeShare.java`, `CommandLineMenu.java`, `CsvRideRepository.java`, `Main.java`, `MemberType.java`, `Receipt.java`, `Rental.java`, `Ride.java`, `RideRepository.java`, `Station.java`.
+
+| No. | Check | Code location (file:line) | Finding | Severity | Suggested fix |
+|---:|---|---|---|---|---|
+| 1 | Code quality | `CommandLineMenu.java:36` | `quit` does not validate the number of arguments, so input such as `quit unexpected` silently exits while the other commands reject extra arguments. | Should fix | Require exactly one word before returning `false`. |
+| 2 | Code quality | `Main.java:10` | The `args` parameter is unused. The signature is required for a Java entry point, but the name does not communicate that it is intentionally unused. | Note | Rename it to `ignoredArgs` or suppress the relevant unused-parameter warning. |
+| 3 | Cohesion | `CommandLineMenu.java:19` | `run()` has **procedural cohesion**: it prints instructions and then performs the ordered input-processing loop. | Note | Extract the instruction display into a small method so `run()` only controls the command loop. |
+| 4 | Cohesion | `CommandLineMenu.java:30` | `execute()` has **logical cohesion** because one discriminator selects among unrelated rent, return, and quit operations. | Should fix | Move command selection into separate command handlers or a command-to-handler map. |
+| 5 | Cohesion | `Main.java:10` | `main()` has **temporal cohesion**: repository creation, service construction, input setup, and application startup are grouped because they occur during startup. | Note | Extract application construction into a factory method and leave `main()` responsible only for starting it. |
+| 6 | Coupling | `CsvRideRepository.java:25` | `CsvRideRepository` reaches through `Ride` to its `Rental` and then calls methods on the nested `MemberType` and `Station` at lines 26–29, creating strong structural coupling to several domain classes. | Should fix | Give `Ride` the flat persistence-facing accessors needed by the repository. |
+| 7 | Connascence | `BikeShare.java:26` | Constructing `Rental` has **connascence of position** between two adjacent `String` arguments (`bike` and `memberId`), which can be swapped without a compile-time error. | Should fix | Replace the raw strings with distinct `BikeId` and `MemberId` value types. |
+| 8 | Connascence | `BikeShare.java:39` | Constructing `Ride` has **connascence of position** between the adjacent `int` arguments `minutes` and `fee`. | Should fix | Introduce distinct value types for duration and fee. |
+| 9 | Connascence | `BikeShare.java:42` | Constructing `Receipt` repeats **connascence of position** between the adjacent `int` arguments `minutes` and `fee`. | Should fix | Reuse distinct duration and fee value types in `Receipt`. |
+
+Check 1 findings: **2**  
+Check 2 findings: **7**
