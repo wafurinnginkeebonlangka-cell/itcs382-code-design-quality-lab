@@ -18,8 +18,9 @@ public class ParcelService {
     }
 
     public List<Locker> getLockers() {
-        return lockers;
+        return java.util.Collections.unmodifiableList(lockers);
     }
+
 
     public Locker storeParcel(Parcel parcel) {
         for (Locker locker : lockers) {
@@ -39,7 +40,7 @@ public class ParcelService {
     public double pickUp(String code, int days) {
         for (Locker locker : lockers) {
             Parcel parcel = locker.getParcel();
-            if (parcel != null && parcel.getCode() == code) {
+            if (parcel != null && parcel.getCode().equals(code)) {
                 locker.setParcel(null);
                 parcel.status = "PICKED_UP";
                 saveToFile();
@@ -61,23 +62,34 @@ public class ParcelService {
         return (days - 3) * 20.0;
     }
 
-    public void printParcels(boolean forStaff) {
+    
+public void printStudentParcels() {
+    for (Parcel parcel : parcels) {
+        if (parcel.status.equals("STORED")) {
+            System.out.println(parcel.getCode() + " is waiting");
+        }
+    }
+}
+
+    public void printStaffParcels() {
         for (Parcel parcel : parcels) {
-            if (forStaff) {
-                System.out.println(parcel.getCode() + " " + parcel.getStudentId() + " " + parcel.status);
-            } else if (parcel.status.equals("STORED")) {
-                System.out.println(parcel.getCode() + " is waiting");
-            }
+            System.out.println(
+                parcel.getCode() + " " +
+                parcel.getStudentId() + " " +
+                parcel.status
+            );
         }
     }
 
+
+    
     private void saveToFile() {
-        try {
-            FileWriter writer = new FileWriter("parcels.csv");
+        try (FileWriter writer = new FileWriter("parcels.csv")) {
             for (Parcel parcel : parcels) {
                 writer.write(parcel.getCode() + "," + parcel.status + "\n");
             }
         } catch (IOException e) {
+            System.err.println("Failed to save parcels: " + e.getMessage());
         }
-    }
+    }   
 }

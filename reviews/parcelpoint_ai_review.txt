@@ -1,0 +1,36 @@
+Files read: `parcelpoint/src/main/java/parcelpoint/Locker.java`, `parcelpoint/src/main/java/parcelpoint/Main.java`, `parcelpoint/src/main/java/parcelpoint/Parcel.java`, `parcelpoint/src/main/java/parcelpoint/ParcelService.java`.
+
+| No. | Check | Code location (file:line) | Finding | Severity | Suggested fix |
+|---:|---|---|---|---|---|
+| 1 | Code quality | `Main.java:8` | The `Scanner` is never closed, leaving its input resource open. | Should fix | Use try-with-resources for the `Scanner`. |
+| 2 | Code quality | `Main.java:11` | Splitting with `" "` produces empty tokens for repeated spaces, and an empty input line produces an unusable command token. | Should fix | Reject blank lines and split with `\\s+`. |
+| 3 | Code quality | `Main.java:13` | `store` accesses four tokens without validating the argument count, so incomplete input throws `ArrayIndexOutOfBoundsException`. | Must fix | Check the token count before accessing command arguments. |
+| 4 | Code quality | `Main.java:13` | An invalid size causes an uncaught `NumberFormatException`. | Should fix | Catch the conversion error or validate the size token first. |
+| 5 | Code quality | `Main.java:17` | `pickup` accesses three tokens and parses `days` without validating either, so malformed input terminates the program. | Should fix | Validate the argument count and numeric value before calling `pickUp`. |
+| 6 | Code quality | `Main.java:6` | `main` contains input parsing, command dispatch, object construction, service calls, and output logic in one relatively complex conditional loop. | Should fix | Extract command parsing and individual command handling into small methods. |
+| 7 | Code quality | `ParcelService.java:6` | `java.util.Date` is imported but never used. | Note | Remove the unused import. |
+| 8 | Code quality | `ParcelService.java:12` | `maxParcels` is never read, so the apparent parcel limit is not enforced. | Should fix | Either enforce the limit in `storeParcel` or remove the field. |
+| 9 | Code quality | `ParcelService.java:42` | Parcel codes are compared with `==`, which compares `String` identities rather than values and will often prevent pickup. | Must fix | Compare the codes with `equals`, using the known non-null value as the receiver. |
+| 10 | Code quality | `ParcelService.java:76` | The `FileWriter` is never closed, which leaks a resource and may leave output buffered or incomplete. | Must fix | Create the writer in a try-with-resources statement. |
+| 11 | Code quality | `ParcelService.java:80` | The empty `catch` block silently discards persistence failures. | Must fix | Report or propagate the `IOException`. |
+| 12 | Code quality | `Locker.java:5` | Locker sizes are represented by unexplained numeric conventions (`1`, `2`, and `3`). | Should fix | Replace the numeric size convention with a shared enum or named constants. |
+| 13 | Code quality | `Parcel.java:13` | Parcel states are represented by repeated raw strings such as `"NEW"`, `"STORED"`, and `"PICKED_UP"`. | Should fix | Replace the status strings with an enum or named constants. |
+| 14 | Cohesion | `Main.java:6` | `main` has **logical cohesion**: unrelated command operations are grouped because they are selected by a command value. | Should fix | Move each command operation into a focused handler method. |
+| 15 | Cohesion | `ParcelService.java:64` | `printParcels` has **logical cohesion**: the `forStaff` flag selects between two different kinds of output. | Should fix | Split staff and student output into separate methods. |
+| 16 | Class cohesion | `ParcelService.java:24` | `ParcelService` handles locker allocation, parcel state, console/SMS-style presentation, fee calculation, and file persistence, so it represents multiple responsibilities. | Should fix | Move notification/output and persistence into separate collaborators. |
+| 17 | Control coupling | `Main.java:19` | `Main` passes `false` to control which internal branch `printParcels` executes. | Should fix | Provide a separately named operation for the non-staff listing. |
+| 18 | Control coupling | `Main.java:21` | `Main` passes `true` to control which internal branch `printParcels` executes. | Should fix | Provide a separately named operation for the staff listing. |
+| 19 | Stamp coupling | `ParcelService.java:52` | `fee` receives an entire `Parcel` but uses only its size. | Should fix | Pass only the parcel size, or move fee calculation to the relevant domain object. |
+| 20 | Content coupling | `ParcelService.java:28` | `ParcelService` directly modifies `Parcel.status`, depending on another class’s internal representation. | Must fix | Make `status` private and expose a focused state-transition operation. |
+| 21 | Strong coupling | `ParcelService.java:24` | `ParcelService` is directly coupled to parcel and locker internals, console output, and file persistence within its service operations. | Should fix | Inject small notification and persistence collaborators and keep this class focused on parcel handling. |
+| 22 | Connascence of position | `Main.java:13` | Creating a `Parcel` requires callers to remember the positional order of three same-level values: code, student ID, and size. | Note | Use a named factory or parameter object that makes each argument’s role explicit. |
+| 23 | Connascence of convention | `ParcelService.java:56` | Fee logic relies on the same undocumented numeric size convention used by `Parcel` and `Locker`. | Should fix | Define parcel size once as a shared enum or named type. |
+| 24 | Connascence of convention | `ParcelService.java:68` | Service behavior depends on the exact `"STORED"` spelling also used when parcel status is assigned. | Should fix | Represent status with a shared enum. |
+| 25 | Encapsulation | `Parcel.java:7` | `status` is public, allowing any caller to put a parcel into an invalid or unknown state. | Must fix | Make the field private and expose controlled state transitions or a read-only accessor. |
+| 26 | Encapsulation | `ParcelService.java:20` | `getLockers` returns the service’s mutable internal list, allowing callers to add, remove, or reorder lockers. | Must fix | Return an unmodifiable view or a defensive copy. |
+| 27 | Strong coupling | `Main.java:22` | `Main` reaches through `ParcelService`’s locker collection and then invokes `Locker.isFree`, coupling the UI to service internals. | Should fix | Add a service operation that returns the free-locker count. |
+
+Finding counts:
+
+- Check 1 — Code quality: **13**
+- Check 2 — Cohesion, coupling, connascence, and encapsulation: **14**

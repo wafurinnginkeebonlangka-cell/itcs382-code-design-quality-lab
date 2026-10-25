@@ -14,35 +14,47 @@ Repository URL:
 
 ## Task 1. SonarQube on the starter code
 
-Commit of the starter, before any change:
+Commit of the starter, before any change: 8a9b43b 
 
 Table 1. SonarQube issues in the starter code
 
 | No. | Rule | File:line | Message |
 | --- | --- | --- | --- |
-| 1 | | | |
+| 1 | java:S106 | Main.java:9 | Replace this use of System.out by a logger. |
+| 2 | java:S106 | Main.java:15 | Replace this use of System.out by a logger. |
+| 3 | java:S106 | Main.java:17 | Replace this use of System.out by a logger. |
+| 4 | java:S106 | Main.java:22 | Replace this use of System.out by a logger. |
 
 ## Task 2. AI review of the starter code
 
 | Item | Value |
 | --- | --- |
-| Date | |
-| AI tool and exact model | |
-| Commit reviewed | |
-| How the AI read the files (attached the files, opened the folder, or pasted the files) | |
-| Output file in the reviews folder | |
+| Date | 2026-10-25 |
+| AI tool and exact model | Codex: GPT-5.6 Sol |
+| Commit reviewed | 8a9b43b |
+| How the AI read the files (attached the files, opened the folder, or pasted the files) | Opened the project folder in VS Code; Codex accessed the Java source files in the workspace |
+| Output file in the reviews folder | reviews/parcelpoint_ai_review.txt (to be created) |
 
 Table 2. All findings on the starter code
 
 | No. | File:line | Finding | Found by (SonarQube, AI or both) | SonarQube rule or course term | Correct? (yes or no, and why) |
 | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | |
+| 1 | Main.java:8 | Scanner `in` is never closed | AI | Resource leak | Yes, the Scanner is created without being closed. |
+| 2 | ParcelService.java:42 | Parcel codes are compared using `==` instead of `.equals()` | AI | Incorrect String comparison | Yes, `==` compares object references rather than String values, which can prevent a matching parcel from being found. |
+| 3 | Main.java:9 | Uses `System.out.println` instead of a logger | SonarQube | java:S106 | Yes, the code prints directly to the console. However, console output may be appropriate for this small command-line program. |
 
 2.1 Name two problems that only the AI review found.
+Two problems found only by the AI review:
+1. ParcelService.java:42 uses `==` instead of `.equals()` to compare Strings. This can cause the program to fail to find a parcel even when the codes match.
+2. ParcelService.java:80 contains an empty catch block. This hides file-writing errors and makes problems difficult to detect.
 
 2.2 Name one problem that only SonarQube found, or write none.
+One problem found only by SonarQube:
+SonarQube detected the use of `System.out.println()` instead of a logger in Main.java (java:S106, lines 9, 15, 17, and 22). The AI review did not mention this issue. However, console output may be appropriate because ParcelPoint is a small command-line application.
 
 2.3 Name one AI finding that was wrong or too vague, and explain why. If every finding was right, explain how you checked them.
+One vague AI finding:
+The AI reported that the main method in Main.java:6 is relatively complex because it handles input parsing, command selection, and output. However, the AI did not provide a specific measurement of complexity. I checked the method manually and confirmed that it handles several responsibilities, but the severity of this issue is subjective.
 
 ## Task 3. Fix and check
 
